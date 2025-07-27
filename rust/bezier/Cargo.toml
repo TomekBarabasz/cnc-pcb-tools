@@ -1,0 +1,16 @@
+[package]
+name = "bezier"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+# For JSON support
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# For XML support
+quick-xml = "0.31"               # For manual XML parsing
+serde-xml-rs = "0.6"             # For XML <-> struct deserialization
+
+regex = "1.11.1"
+
