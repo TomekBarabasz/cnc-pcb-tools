@@ -1,4 +1,4 @@
-use crate::point::Point;
+use crate::curves::point::Point;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Bezier {

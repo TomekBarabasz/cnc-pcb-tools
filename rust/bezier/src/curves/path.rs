@@ -1,5 +1,5 @@
-use crate::bezier::Bezier;
-use crate::point::Point;
+use crate::curves::point::Point;
+use crate::curves::bezier::Bezier;
 use std::iter::Peekable;
 
 enum Command {

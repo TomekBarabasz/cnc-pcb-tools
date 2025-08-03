@@ -1,12 +1,11 @@
 use std::env;
-mod point;
-use point::Point;
-mod bezier;
-use bezier::Bezier;
-mod io;
-use io::{svg::read_svg_paths,path::parse_svg_path};
+mod curves;
+use curves::Point;
+use curves::svg::read_svg_paths;
+use curves::parse_svg_path;
 
 // rust-logo: "C:\tomek\projects\rustlings\website\static\images\rust_logo.svg"
+// c:\tomek\cnc\visiorek.svg
 
 fn test1() {
 
