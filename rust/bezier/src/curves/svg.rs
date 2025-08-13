@@ -1,8 +1,9 @@
 use std::collections::HashMap;
 use std::error::Error;
 use std::fs;
+use std::path::Path;
 
-pub fn read_svg_paths(filename: &str) -> Result<HashMap<String, String>, Box<dyn Error>> {
+pub fn read_svg_paths(filename: &Path) -> Result<HashMap<String, String>, Box<dyn Error>> {
     let contents = fs::read_to_string(filename)?;
     let doc = roxmltree::Document::parse(&contents)?;
     let root = doc.root_element();
