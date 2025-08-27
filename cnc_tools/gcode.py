@@ -65,7 +65,7 @@ class GProg:
     def lin(self, to=None, **kwargs):
         cs = self._move_coords(to,**kwargs)
         cs = GProg._set_feed(cs,kwargs.get('f',None))
-        self.cmds.append( 'G00 ' + ' '.join(cs))
+        self.cmds.append( 'G01 ' + ' '.join(cs))
         return self
     
     def asText(self):
