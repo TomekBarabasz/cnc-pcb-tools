@@ -93,13 +93,13 @@ pub fn parse_svg_path(path : &str) -> Result<Vec<Bezier>, ParseError> {
         match cmd {
             Command::MoveTo => {
                 current_point = move_to(&current_point, relative, &mut chunk_iter)?;
-                println!("{} {}", if relative {'m'} else {'M'}, current_point);
+                //println!("{} {}", if relative {'m'} else {'M'}, current_point);
             }
             Command::CurveTo => {
                 let bezier = curve_to(&current_point, relative, &mut chunk_iter)?;
                 bezier_curves.push(bezier);
                 current_point = bezier.end;
-                println!("{} from {} to {}", if relative {'c'} else {'C'}, bezier.start, bezier.end);
+                //println!("{} from {} to {}", if relative {'c'} else {'C'}, bezier.start, bezier.end);
             }
             Command::ClosePath => {
                 // Close path logic can be added here if needed
@@ -108,7 +108,7 @@ pub fn parse_svg_path(path : &str) -> Result<Vec<Bezier>, ParseError> {
                 let bezier = line_to(&current_point, relative, &mut chunk_iter)?;
                 bezier_curves.push(bezier);
                 current_point = bezier.end;
-                println!("{} from {} to {}", if relative {'l'} else {'L'}, bezier.start, bezier.end);
+                //println!("{} from {} to {}", if relative {'l'} else {'L'}, bezier.start, bezier.end);
             }
         }
     }

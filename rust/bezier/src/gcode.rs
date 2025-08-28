@@ -1,9 +1,9 @@
 use std::ops::{AddAssign};
 
-struct OptPos {
-    x: Option<f32>,
-    y: Option<f32>,
-    z: Option<f32>,
+pub struct OptPos {
+    pub x: Option<f32>,
+    pub y: Option<f32>,
+    pub z: Option<f32>,
 }
 
 impl AddAssign for OptPos {
@@ -109,24 +109,21 @@ impl GProg {
         self
     }
     pub fn x_move_to(&mut self, to: f32) -> &mut Self {
-        self.move_to(OptPos { x: Some(to), y: None, z: None });
-        self
+        self.move_to(OptPos { x: Some(to), y: None, z: None })
     }
     pub fn y_move_to(&mut self, to: f32) -> &mut Self {
-        self.move_to(OptPos { x: None, y: Some(to), z: None });
-        self
+        self.move_to(OptPos { x: None, y: Some(to), z: None })
     }
     pub fn z_move_to(&mut self, to: f32) -> &mut Self {
-        self.move_to(OptPos { x: None, y: None, z: Some(to) });
-        self
+        self.move_to(OptPos { x: None, y: None, z: Some(to) })
     }
     pub fn linear_to(&mut self, to: OptPos) -> &mut Self {
         let coords = self.move_coords(to);
         self.commands.push(format!("G01{}", coords));
         self
     }
-    pub fn commend(&mut self, to :&str) -> &mut Self {
-        self.commands.push(to.to_string());
+    pub fn comment(&mut self, txt :&str) -> &mut Self {
+        self.commands.push(format!("({})", txt));
         self
     }
     pub fn to_string(&self) -> String {

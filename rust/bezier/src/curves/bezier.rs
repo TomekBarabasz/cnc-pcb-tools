@@ -51,7 +51,7 @@ impl Bezier {
         )
     }
 
-    fn flatten(&self, tolerance: f32) -> Vec<Point> {
+    pub fn flatten(&self, tolerance: f32) -> Vec<Point> {
         let d1 = self.c1.distance_to_line(&self.start, &self.end);
         let d2 = self.c2.distance_to_line(&self.start, &self.end);
         if f32::max(d1, d2) < tolerance {

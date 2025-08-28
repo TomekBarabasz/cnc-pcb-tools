@@ -5,6 +5,9 @@ use curves::parse_svg_path;
 use std::path::{Path,PathBuf};
 use clap::{Parser,Subcommand};
 use std::collections::HashMap;
+mod gcode;
+use gcode::{GProg,OptPos};
+use std::fs;
 
 // rust-logo: "C:\tomek\projects\rustlings\website\static\images\rust_logo.svg"
 // c:\tomek\cnc\visiorek.svg
@@ -29,7 +32,7 @@ struct Args {
 
 #[derive(Subcommand,Debug)]
 enum Commands {
-    Flatten {
+    ToGcode {
         #[arg(value_name="INPUT")]
         filename: PathBuf,
 
@@ -37,10 +40,10 @@ enum Commands {
         output: PathBuf,
 
         #[arg(short, long, default_value_t = 0.01)]
-        error: f64,
+        error: f32,
 
         #[arg(short, long)]
-        tool_dia: f64,
+        tool_dia: f32,
     },
     Cmd1 {
         filename: PathBuf,
@@ -57,7 +60,13 @@ enum Commands {
     },
 }
 
-fn flatten(filename : &Path, output: &Path, error: f64, tool_dia: f64) {
+impl OptPos {
+    fn from_pt( pt : Point) -> Self {
+        OptPos {x : Some(pt.x), y : Some(pt.y), z : None}
+    }
+}
+
+fn toGcode(filename : &Path, output: &Path, tolerance: f32, tool_dia: f32) {
     let paths = read_svg_paths(filename).unwrap();
     let curves = paths.iter()
                     .filter_map(|(name, p)| match parse_svg_path(p) {
@@ -68,19 +77,50 @@ fn flatten(filename : &Path, output: &Path, error: f64, tool_dia: f64) {
                         },
                     })
                     .collect::<HashMap<String, Vec<Bezier>>>();
-    dbg!(&curves);
+    // dbg!(&curves);
+    /*
+    let mut pts  = vec![];
+    for (_,path) in curves.into_iter() {
+        for c in path.iter() {
+            pts.append( &mut c.flatten(tolerance) )
+        }
+    } or */
+
+    let mut gprog = GProg::new();
+    gprog.units("mm").coords("abs");
+    
+    /*
+    let pts = curves.into_iter()
+        .flat_map(|(_,path)| {
+            path.into_iter()
+            .flat_map(|c| c.flatten(tolerance))
+        })
+        .collect::<Vec<Point>>();
+    */
+    for (name,path) in curves.into_iter() {
+        gprog.comment(&name);
+        let pts : Vec<_> = path.into_iter().flat_map(|c| c.flatten(tolerance)).collect();
+        let mut it = pts.into_iter();
+        let p = it.next().unwrap();
+        gprog.move_to( OptPos::from_pt(p) );
+        for p in it {
+            gprog.linear_to( OptPos::from_pt(p) );
+        }
+    }
+
+    let res = fs::write(output, gprog.to_string());
 }
 
 fn main() {
     let cli = Args::parse();
 
     match cli.command {
-        Some(Commands::Flatten { filename, output, error, tool_dia }) => {
+        Some(Commands::ToGcode { filename, output, error, tool_dia }) => {
             println!("Flattening file: {:?}", filename);
             println!("Output file: {:?}", output);
             println!("Error tolerance: {}", error);
             println!("Tool diameter: {}", tool_dia);
-            flatten(&filename, &output, error, tool_dia);
+            toGcode(&filename, &output, error, tool_dia);
         },
         Some(Commands::Cmd1 { filename, output }) => {
             println!("Command 1 with file: {:?}", filename);
