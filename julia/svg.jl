@@ -3,8 +3,10 @@ module SVG
 export parse_svg_path, read_svg_paths
 
 using LightXML
-include("Bezier.jl")
-using .Bezier
+if !isdefined(Main, :Bezier)
+    include("Bezier.jl")
+end
+using ..Bezier  # Use parent scope (Main.Bezier)
 
 function read_svg_paths(filename)    
     paths = Dict{String, String}()
