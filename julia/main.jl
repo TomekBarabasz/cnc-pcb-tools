@@ -1,9 +1,12 @@
 using ArgParse
+using GLMakie
 
 include("Bezier.jl")
 include("SVG.jl")
-using .Bezier: PointF32, midpoint, CurveF32, subdivide, flatten
+include("Poly.jl")
+using .Bezier
 using .SVG
+using .Poly
 
 function parse_commandline()
     s = ArgParseSettings()
@@ -30,6 +33,26 @@ function basic_point_curve_tests()
     pl = flatten(c,0.01)
 end
 
+function plot_polyline(points)
+    xs, ys = [p.x for p in points], [p.y for p in points]
+    fig = Figure()
+    ax = Axis(fig[1, 1], aspect = DataAspect())
+    lines!(ax, xs, ys)
+    scatter!(ax, xs, ys, markersize = 5)
+    wait(display(fig))
+end
+
+function plot_polylines(polys)
+    fig = Figure()
+    ax = Axis(fig[1, 1], aspect = DataAspect())
+    for (poly,color) in zip(polys,[:red,:blue,:green])
+        xs, ys = [p.x for p in poly], [p.y for p in poly]
+        lines!(ax, xs, ys, color = color)
+        scatter!(ax, xs, ys, markersize = 5, color = color)
+    end
+    wait(display(fig))
+end
+
 args = parse_commandline()
 
 basic_point_curve_tests()
@@ -37,9 +60,13 @@ basic_point_curve_tests()
 paths = read_svg_paths(args.input_filename)
 path11 = paths["path11"]
 curves = parse_svg_path(Float32, path11)
-println("nbr of curves in path11 : $(length(curves))")
-println("c[begin] = $(curves[begin])")
 pts = flatten(curves,0.01)
-println("nbr of points after flatten : $(length(pts))")
-l1 = flatten(curves[begin],0.1)
-println("l1=$(l1)")
+
+#pts_i = offset_polyline_simple(pts, -3)
+#pts_o = offset_polyline_simple(pts, 3)
+
+pts_i = offset_polyline(pts, -3)
+pts_o = offset_polyline(pts, 3)
+
+plot_polylines((pts_i, pts, pts_o))
+

@@ -23,6 +23,10 @@ struct Line{T<:AbstractFloat}
     end_pt::Point{T}
 end
 
+function distance(p1::Point{T}, p2::Point{T}) where T
+    hypot(p2.x - p1.x, p2.y - p1.y)
+end
+
 function distance(p::Point{T}, line::Line{T}) where T
     x0,y0 = p.x, p.y
     x1,y1 = line.start_pt.x, line.start_pt.y
