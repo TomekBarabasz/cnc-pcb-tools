@@ -1,11 +1,13 @@
 module Poly
 
-export offset_polyline_simple, offset_polyline
+export make_cnc_path,remove_duplicate_points
 
 if !isdefined(Main, :Bezier)
     include("Bezier.jl")
 end
 using ..Bezier  # Use parent scope (Main.Bezier)
+
+cast(value::Number, ::Type{T}) where T<:Number = T(value)::T
 
 function offset_polyline_simple(points::Vector{Point{T}}, distance) where T <: AbstractFloat
     n = length(points)
@@ -92,6 +94,53 @@ function offset_polyline(points::Vector{Point{T}}, distance_) where T <: Abstrac
     end
 
     offset_points
+end
+
+function remove_duplicate_points(points::Vector{Point{T}}, max_dist) where T <: AbstractFloat
+    res = Vector{Point{T}}()
+    sizehint!(res,length(points))
+    push!(res,points[begin])
+    for i in 2:length(points)
+        d = distance(points[i-1],points[i])
+        if d > max_dist
+            push!(res,points[i])
+        end
+    end
+    res
+end
+
+# this requires cw Point order
+function make_cnc_path(points::Vector{Point{T}}, tool_dia, max_error) where T <: AbstractFloat
+    N = [points[i+1]-points[i]|>normalize|>perpendicular for i in 1:length(points)-1]
+    tool_path = Vector{Point{T}}()
+    r = cast(tool_dia,T)
+    step_a = 2 * acos( (r - max_error) / r )
+    thr_cosa = cos(step_a)
+    push!(tool_path, points[begin] + N[begin] * r)
+    for i in 2:length(points)-1
+        cosa = Bezier.dot(N[i-1],N[i])
+        convex = Bezier.vdot(N[i-1],N[i]) < 0
+        if convex
+            push!(tool_path, points[i] + N[i-1] * r)
+            if cosa < thr_cosa
+                a_end = acos(cosa)
+                n_steps = cast(round(a_end / step_a),Int)
+                a = a_end / n_steps
+                n = Bezier.copy(N[i-1])
+                for _ in 1:n_steps-1
+                    n = Bezier.rot(n,a)
+                    push!(tool_path, points[i] + n * r)
+                end
+            end
+            push!(tool_path, points[i] + N[i] * r)
+        else
+            a2 = acos(cosa) / 2
+            n = N[i-1] + N[i] |> normalize
+            push!(tool_path, points[i] + n * Float32(r / cos(a2)))
+        end
+    end
+    push!(tool_path, points[end] + N[end] * r)
+    tool_path
 end
 
 end #module

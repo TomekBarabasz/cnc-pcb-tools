@@ -2,7 +2,7 @@ module Bezier
 
 export  Point, Curve, PointF32, CurveF32, Line, LineF32,
         midpoint, normalize, perpendicular,distance,
-        subdivide,flatten
+        subdivide,flatten,flattenr
 
 import Base: +,-,*,/
 
@@ -17,6 +17,14 @@ end
 midpoint(p1::Point{T}, p2::Point{T}) where T = (p1 + p2) / T(2)
 normalize(p::Point{T}) where T = (len = hypot(p.x, p.y); len != 0 ? p / len : Point{T}(0, 0))
 perpendicular(p::Point{T}) where T = Point{T}(-p.y, p.x)
+dot(a::Point{T}, b::Point{T}) where T = a.x*b.x + a.y*b.y
+copy(p::Point{T}) where T = Point{T}(p.x,p.y)
+vdot(a::Point{T},b::Point{T}) where T = a.x * b.y - a.y *b.x
+function rot(p::Point{T}, angle::Real) where T
+    cos_a = cos(angle)
+    sin_a = sin(angle)
+    Point{T}(p.x * cos_a - p.y * sin_a, p.x * sin_a + p.y * cos_a)
+end
 
 struct Line{T<:AbstractFloat}
     start_pt::Point{T}
@@ -71,6 +79,8 @@ function flatten(vec::Vector{Curve{T}}, max_error) where T
     end
     pts    
 end
+
+flattenr(vec,max_error) = flatten(vec,max_error) |> reverse
 
 const PointF32 = Point{Float32}
 const LineF32  = Line{Float32}
