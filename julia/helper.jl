@@ -1,4 +1,8 @@
 using GLMakie
+using DelaunayTriangulation
+
+include("CncTools/src/CncTools.jl")
+using .CncTools: Point
 
 function plot_polyline(points)
     xs, ys = [p.x for p in points], [p.y for p in points]
@@ -17,5 +21,15 @@ function plot_polylines(polys...)
         lines!(ax, xs, ys, color = color)
         scatter!(ax, xs, ys, markersize = 5, color = color)
     end
+    wait(display(fig))
+end
+
+function plot_voronoi(points)
+    tri = triangulate([(p.x,p.y) for p in points])
+    vor = voronoi(tri)
+
+    fig, ax, sc = voronoiplot(vor, markersize = 13, colormap = :matter, strokecolor = :white, strokewidth = 5)
+    triplot!(ax, tri)
+
     wait(display(fig))
 end

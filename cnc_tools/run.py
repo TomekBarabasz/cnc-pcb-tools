@@ -1,7 +1,7 @@
 import argparse
 from sys import argv
 from pathlib import Path
-from cutoff import cutoff
+from cnc_tools import cutoff
 from utils import read_yml
 
 if __name__ == '__main__':

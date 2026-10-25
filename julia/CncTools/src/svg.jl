@@ -4,7 +4,7 @@ export parse_path, read_paths
 
 using LightXML
 
-include("geometry.jl")
+using ..CncTools: Point, Curve
 
 function read_paths(filename)    
     paths = Dict{String, String}()

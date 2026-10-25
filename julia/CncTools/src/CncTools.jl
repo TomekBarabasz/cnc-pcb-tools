@@ -6,7 +6,7 @@ include("poly.jl")
 include("utils.jl")
 
 # from geometry
-export  Point, PointF32, Line, LineF32, Curve, CurveF32,
+export  Point, Line, Curve,
         midpoint, normalize, perpendicular, distance,
         subdivide,flatten,flattenr
 

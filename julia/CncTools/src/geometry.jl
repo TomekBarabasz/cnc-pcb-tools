@@ -21,6 +21,11 @@ function rotate(p::Point{T}, angle::Real) where T
     Point{T}(p.x * cos_a - p.y * sin_a, p.x * sin_a + p.y * cos_a)
 end
 
+Base.getindex(p::Point{T}, i::Int) where T =
+    i == 1 ? p.x :
+    i == 2 ? p.y :
+    throw(BoundsError(p, i))
+
 struct Line{T<:AbstractFloat}
     start_pt::Point{T}
     end_pt::Point{T}
@@ -75,7 +80,4 @@ function flatten(vec::Vector{Curve{T}}, max_error) where T
     pts    
 end
 
-const PointF32 = Point{Float32}
-const LineF32  = Line{Float32}
-const CurveF32 = Curve{Float32}
 
